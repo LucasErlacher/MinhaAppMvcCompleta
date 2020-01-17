@@ -46,7 +46,7 @@ namespace DevIO.Data.Repositories
 
         public virtual async Task<List<TEntity>> ObterTodos()
         {
-            return await _set.ToListAsync();
+            return await _set.AsNoTracking().ToListAsync();
         }
 
         public virtual async Task Remover(Guid id)
