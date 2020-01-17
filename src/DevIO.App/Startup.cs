@@ -1,5 +1,6 @@
 using AutoMapper;
 using DevIO.App.Data;
+using DevIO.App.Extensions;
 using DevIO.Business.Interfaces;
 using DevIO.Data.Context;
 using DevIO.Data.Repositories;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,6 +67,8 @@ namespace DevIO.App
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IFornecedorRepository, FornecedorRepository>();
             services.AddScoped<IEnderecoRepository, EnderecoRepository>();
+
+            services.AddSingleton<IValidationAttributeAdapterProvider, MoedaValidationAttruibuteAdapterProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
