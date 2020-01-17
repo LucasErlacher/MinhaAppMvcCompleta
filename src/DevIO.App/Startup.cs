@@ -6,10 +6,13 @@ using DevIO.Data.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace DevIO.App
 {
@@ -41,6 +44,23 @@ namespace DevIO.App
 
             services.AddAutoMapper(typeof(Startup));
 
+            services.AddMvc(setup =>
+            {
+                var messageProvider = setup.ModelBindingMessageProvider;
+
+                messageProvider.SetAttemptedValueIsInvalidAccessor((x, y) => "O valor preenchido é inválido para este campo.");
+                messageProvider.SetMissingBindRequiredValueAccessor(x => "Este campo precisa ser preenchido.");
+                messageProvider.SetMissingKeyOrValueAccessor(() => "Este campo precisa ser preenchido.");
+                messageProvider.SetMissingRequestBodyRequiredValueAccessor(() => "É necessário que o body na requisição não esteja vazio.");
+                messageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(x => "O valor preenchido é inválido para este campo.");
+                messageProvider.SetNonPropertyUnknownValueIsInvalidAccessor(() => "O valor preenchido é inválido para este campo.");
+                messageProvider.SetNonPropertyValueMustBeANumberAccessor(() => "O campo deve ser numérico");
+                messageProvider.SetUnknownValueIsInvalidAccessor(x => "O valor preenchido é inválido para este campo.");
+                messageProvider.SetValueIsInvalidAccessor(x => "O valor preenchido é inválido para este campo.");
+                messageProvider.SetValueMustBeANumberAccessor(x => "O campo deve ser numérico.");
+                messageProvider.SetValueMustNotBeNullAccessor(x => "Este campo precisa ser preenchido.");
+            });
+
             services.AddScoped<MeuDbContext>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IFornecedorRepository, FornecedorRepository>();
@@ -68,6 +88,16 @@ namespace DevIO.App
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            CultureInfo cultureInfo = new CultureInfo("pt-BR");
+            var localizationOptions = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(cultureInfo),
+                SupportedCultures = new List<CultureInfo> { cultureInfo },
+                SupportedUICultures = new List<CultureInfo> { cultureInfo }
+            };
+
+            app.UseRequestLocalization(localizationOptions);
 
             app.UseEndpoints(endpoints =>
             {
