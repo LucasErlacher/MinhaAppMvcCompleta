@@ -3,3 +3,9 @@
 ################################################################################
 
 /.vs
+/src/DevIO.App/bin/Debug/netcoreapp3.1
+/src/DevIO.App/obj
+/src/DevIO.Business/bin/Debug/netcoreapp3.1
+/src/DevIO.Business/obj
+/src/DevIO.Data/bin/Debug/netcoreapp3.1
+/src/DevIO.Data/obj
