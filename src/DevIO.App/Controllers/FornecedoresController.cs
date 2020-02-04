@@ -12,11 +12,13 @@ namespace DevIO.App.Controllers
     public class FornecedoresController : BaseController
     {
         private readonly IFornecedorRepository _repository;
+        private readonly IEnderecoRepository _enderecoRepository;
         private readonly IMapper _mapper;
 
-        public FornecedoresController(IFornecedorRepository _repository, IMapper _mapper)
+        public FornecedoresController(IFornecedorRepository _repository, IEnderecoRepository _enderecoRepository, IMapper _mapper)
         {
             this._repository = _repository;
+            this._enderecoRepository = _enderecoRepository;
             this._mapper = _mapper;
         }
 
@@ -113,6 +115,28 @@ namespace DevIO.App.Controllers
             await _repository.Remover(id);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> AtualizarEndereco(Guid id)
+        {
+            var fornecedor = await ObterFornecedorEndereco(id);
+
+            if (fornecedor == null) return NotFound();
+
+            return PartialView("_AtualizarEndereco", new FornecedorViewModel { Endereco = fornecedor.Endereco });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AtualizarEndereco(FornecedorViewModel fornecedorViewModel)
+        {
+            if (!ModelState.IsValid) return PartialView("_AtualizarEndereco", fornecedorViewModel);
+
+            await _enderecoRepository.Atualizar(_mapper.Map<Endereco>(fornecedorViewModel.Endereco));
+
+            var url
+
+            return new JsonResult;
         }
 
         private async Task<FornecedorViewModel> ObterFornecedorEndereco(Guid id)
