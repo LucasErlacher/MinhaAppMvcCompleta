@@ -12,14 +12,17 @@ namespace DevIO.App.Controllers
     public class FornecedoresController : BaseController
     {
         private readonly IFornecedorRepository _repository;
-        private readonly IEnderecoRepository _enderecoRepository;
+        private readonly IFornecedorService _fornecedorService;
         private readonly IMapper _mapper;
 
-        public FornecedoresController(IFornecedorRepository _repository, IEnderecoRepository _enderecoRepository, IMapper _mapper)
+        public FornecedoresController(INotificador notificador,
+                                      IFornecedorRepository repository,
+                                      IFornecedorService fornecedorService,
+                                      IMapper mapper) : base(notificador)
         {
-            this._repository = _repository;
-            this._enderecoRepository = _enderecoRepository;
-            this._mapper = _mapper;
+            _repository = repository;
+            _fornecedorService = fornecedorService;
+            _mapper = mapper;
         }
 
         [Route("lista-de-fornecedores")]
@@ -52,16 +55,13 @@ namespace DevIO.App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FornecedorViewModel fornecedorViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                fornecedorViewModel.Id = Guid.NewGuid();
+            if (!ModelState.IsValid) return View(fornecedorViewModel);
 
-                await _repository.Adicionar(_mapper.Map<Fornecedor>(fornecedorViewModel));
+            await _fornecedorService.Adicionar(_mapper.Map<Fornecedor>(fornecedorViewModel));
 
-                return RedirectToAction(nameof(Index));
-            }
+            if (!OperacaoValida()) View(fornecedorViewModel);
 
-            return View(fornecedorViewModel);
+            return RedirectToAction(nameof(Index));
         }
 
         [Route("editar-fornecedor/{id:guid}")]
@@ -90,7 +90,10 @@ namespace DevIO.App.Controllers
             if (!ModelState.IsValid) return View(fornecedorViewModel);
 
             var fornecedor = _mapper.Map<Fornecedor>(fornecedorViewModel);
-            await _repository.Atualizar(fornecedor);
+
+            await _fornecedorService.Atualizar(fornecedor);
+
+            if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
 
             return RedirectToAction(nameof(Index));
         }
@@ -120,7 +123,9 @@ namespace DevIO.App.Controllers
                 return NotFound();
             }
 
-            await _repository.Remover(id);
+            await _fornecedorService.Remover(id);
+
+            if (!OperacaoValida()) return View(fornecedorViewModel);
 
             return RedirectToAction(nameof(Index));
         }
@@ -155,7 +160,9 @@ namespace DevIO.App.Controllers
 
             if (!ModelState.IsValid) return PartialView("_AtualizarEndereco", fornecedorViewModel);
 
-            await _enderecoRepository.Atualizar(_mapper.Map<Endereco>(fornecedorViewModel.Endereco));
+            await _fornecedorService.AtualizarEndereco(_mapper.Map<Endereco>(fornecedorViewModel.Endereco));
+
+            if (!OperacaoValida()) return PartialView("_AtualizarEndereco", fornecedorViewModel);
 
             var url = Url.Action("ObterEndereco", "Fornecedores", new { id = fornecedorViewModel.Endereco.FornecedorId });
 
