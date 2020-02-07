@@ -1,4 +1,5 @@
-﻿using DevIO.Business.Interfaces;
+﻿using DevIO.App.ViewModels;
+using DevIO.Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -26,10 +27,32 @@ namespace DevIO.App.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [Route("erro/{id:length(3,3)}")]
+        public IActionResult Error(int id)
         {
-            return View(null);
+            var modelErro = new ErrorViewModel();
+
+            modelErro.ErroCode = id;
+
+            if (id == 500)
+            {
+                modelErro.Titulo = "Ocorreu um erro!";
+                modelErro.Mensagem = "Ocorreu um erro! Tente novamente mais tarde ou contate nosso suporte.";
+            }
+
+            else if (id == 404)
+            {
+                modelErro.Titulo = "Ops! Página não encontrada.";
+                modelErro.Mensagem = "A página que está procurando não existe! <br />Em caso de dúvidas entre em contato com nosso suporte.";
+            }
+
+            else if (id == 500)
+            {
+                modelErro.Titulo = "Acesso Negado!";
+                modelErro.Mensagem = "Você não tem permissão para fazer isso.";
+            }
+
+            return View("Error", modelErro);
         }
     }
 }
